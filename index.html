@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+  <!-- UI Bar -->
+  <button onclick="openFile()">Open</button>
+  <button onclick="saveFile()">Save</button>
+  <hr>
+
+  <!-- Text Area -->
+  <textarea id="box" rows="30" cols="100" style="width: 99%; height: 90vh;"></textarea>
+
+  <script>
+    let fileHandle;
+
+    async function openFile() {
+      try {
+        [fileHandle] = await window.showOpenFilePicker();
+        const file = await fileHandle.getFile();
+        document.getElementById('box').value = await file.text();
+      } catch (err) { console.log('Open cancelled'); }
+    }
+
+    async function saveFile() {
+      try {
+        // If no file is open, ask where to save
+        if (!fileHandle) {
+          fileHandle = await window.showSaveFilePicker({
+            suggestedName: 'note.txt',
+            types: [{ description: 'Text File', accept: {'text/plain': ['.txt']} }]
+          });
+        }
+        const writable = await fileHandle.createWritable();
+        await writable.write(document.getElementById('box').value);
+        await writable.close();
+      } catch (err) { console.log('Save cancelled'); }
+    }
+  </script>
+
+</body>
+</html>
